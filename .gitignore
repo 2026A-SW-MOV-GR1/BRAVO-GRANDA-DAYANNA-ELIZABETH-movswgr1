@@ -1,2 +1,5 @@
 taller05/
 .gradle/
+build/
+settings.gradle
+.idea/
