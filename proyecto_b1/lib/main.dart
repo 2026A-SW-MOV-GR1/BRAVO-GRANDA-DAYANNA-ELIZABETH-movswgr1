@@ -84,6 +84,10 @@ class _NetworkModuleState extends State<NetworkModule> {
   bool   _loading = false;
   String _status  = '';
 
+  // JSONPlaceholder no persiste los PUT realmente, así que guardamos
+  // localmente las ediciones del usuario para que GET las muestre.
+  final Map<int, Map<String, String>> _localEdits = {};
+
   @override
   void dispose() {
     // Liberar controllers al destruir el widget (evita memory leaks).
@@ -112,11 +116,14 @@ class _NetworkModuleState extends State<NetworkModule> {
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
-        // Cargar los datos en los TextFields editables.
-        // El usuario puede modificar el contenido libremente antes del PUT.
-        _titleCtrl.text = data['title'] as String;
-        _bodyCtrl.text  = data['body']  as String;
-        setState(() => _status = 'Estado: post cargado');
+        // Si el usuario ya editó este ID con PUT, mostrar su versión local.
+        // JSONPlaceholder no guarda realmente los cambios del servidor.
+        final local = _localEdits[id];
+        _titleCtrl.text = local?['title'] ?? data['title'] as String;
+        _bodyCtrl.text  = local?['body']  ?? data['body']  as String;
+        setState(() => _status = local != null
+            ? 'Estado: post cargado (con tus ediciones)'
+            : 'Estado: post cargado');
       } else {
         setState(() => _status = 'Estado: error ${res.statusCode}');
       }
@@ -153,6 +160,11 @@ class _NetworkModuleState extends State<NetworkModule> {
       if (!mounted) return;
 
       if (res.statusCode == 200) {
+        // Guardar la edición localmente para que GET la muestre luego.
+        _localEdits[id] = {
+          'title': _titleCtrl.text,
+          'body':  _bodyCtrl.text,
+        };
         setState(() => _status = 'Estado: actualizado (200 OK)');
       } else {
         setState(() => _status = 'Estado: error ${res.statusCode}');
