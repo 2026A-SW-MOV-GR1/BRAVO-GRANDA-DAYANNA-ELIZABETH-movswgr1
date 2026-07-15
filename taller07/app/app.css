@@ -1,0 +1,28 @@
+.container {
+  padding: 24;
+  horizontal-align: center;
+  vertical-align: center;
+}
+
+.title {
+  font-size: 20;
+  margin-bottom: 12;
+  text-align: center;
+}
+
+.counter {
+  font-size: 42;
+  font-weight: bold;
+  margin-bottom: 18;
+  text-align: center;
+}
+
+.increment-button {
+  width: 120;
+}
+
+.reset-button {
+  width: 120;
+  margin-top: 12;
+  color: #d9534f;
+}

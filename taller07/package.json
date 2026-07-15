@@ -1,0 +1,20 @@
+{
+  "name": "taller07-ciclo-vida-persistencia",
+  "version": "1.0.0",
+  "private": true,
+  "main": "app/app.ts",
+  "scripts": {
+    "build": "ns build android",
+    "android": "ns run android",
+    "clean": "ns clean"
+  },
+  "dependencies": {
+    "@nativescript/core": "~8.9.0"
+  },
+  "devDependencies": {
+    "@nativescript/android": "~8.9.0",
+    "@nativescript/types": "~8.9.0",
+    "@nativescript/webpack": "~5.0.0",
+    "typescript": "~5.5.4"
+  }
+}

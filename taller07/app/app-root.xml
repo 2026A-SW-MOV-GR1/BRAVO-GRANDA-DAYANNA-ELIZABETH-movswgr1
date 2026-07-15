@@ -1,0 +1,10 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" loaded="onPageLoaded">
+    <ActionBar title="Taller 07" />
+
+    <StackLayout class="container">
+        <Label text="Contador" class="title" />
+        <Label text="{{ count }}" class="counter" />
+        <Button text="+1" tap="onIncrementTap" class="increment-button" />
+        <Button text="Reset" tap="onResetTap" class="reset-button" />
+    </StackLayout>
+</Page>
