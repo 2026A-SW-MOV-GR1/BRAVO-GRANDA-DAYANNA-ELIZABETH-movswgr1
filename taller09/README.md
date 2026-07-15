@@ -3,24 +3,6 @@
 **Escuela Politécnica Nacional — Ingeniería de UI**
 Clon de alta fidelidad de la interfaz móvil de Facebook usando **NativeScript** (renderizado 100% nativo, sin WebViews), con foco en fidelidad visual, 60 FPS y análisis UX.
 
-## Checklist de cumplimiento (guía oficial del taller)
-
-| Requisito de la guía | Estado | Dónde |
-|---|---|---|
-| Prohibido WebView | ✅ | Todo el árbol usa componentes nativos (`ListView`, `Image`, `GridLayout`, `BottomNavigation`) |
-| Al menos 3 listas | ✅ | Feed (1), Historias (2), Notificaciones (3) — ver auditoría abajo |
-| Performance / 60 FPS | ✅ | `ListView` único con reciclaje nativo, `decodeWidth/Height`, `ObservableArray.setItem`, `loadMoreItems` (paginación) |
-| Transiciones de entrada | ✅ | `animateEntrance()` en `common/animations.ts`, disparada 1 vez por item vía `itemLoading` |
-| Efecto al presionar botones | ✅ | `pulseLike()` (rebote nativo en "Me gusta") + pseudo-clase CSS `:highlighted` en todos los botones |
-| Estado de carga (skeleton/shimmer) | ✅ | `startShimmer()` + fila `templateType: "skeleton"` real en Feed y Notificaciones (900ms/700ms simulados) |
-| Definición de mercado | ✅ | Fase A, punto 1 |
-| Psicología del color (paleta + teoría) | ✅ | Fase A, punto 2 |
-| Auditoría de 3 iterables | ✅ | Fase A, punto 3 |
-| Modelos de datos | ✅ | `app/models/` |
-| Estilización (fuentes, paddings, bordes) | ✅ | `*.css` de cada vista |
-| Crítica UX + propuesta implementada | ✅ | Fase C |
-| Código limpio / SOLID / arquitectura de carpetas | ✅ | Ver estructura + comentarios ISP/DIP/OCP en el código |
-| **Reserva de app en el post oficial del curso** | ⚠️ **Pendiente — acción manual tuya**, no de código: comenta "Facebook" en el post de reserva del curso antes de entregar, para que no quede duplicada con otro compañero. |
 
 ## Estructura del proyecto
 
