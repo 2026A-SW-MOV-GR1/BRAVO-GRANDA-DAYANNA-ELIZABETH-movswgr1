@@ -1,0 +1,15 @@
+/* Reset y tipografia global (Entregable 2.3) */
+
+.page-root {
+  background-color: #F0F2F5;
+  font-family: "HelveticaNeue", "Roboto", sans-serif;
+}
+
+Label, Button, TextView {
+  color: #050505;
+}
+
+ActionBar {
+  background-color: #1877F2;
+  color: #FFFFFF;
+}

@@ -1,0 +1,176 @@
+/* Entregable 2.3 — Estilizacion de alta fidelidad del Feed (Lista 1 y 2) */
+
+.action-bar {
+  background-color: #1877F2;
+  color: #FFFFFF;
+}
+
+.feed-list {
+  background-color: #F0F2F5;
+}
+
+/* ---------- Fila de Historias (Lista 2) ---------- */
+
+.stories-row-container {
+  background-color: #FFFFFF;
+  padding: 8;
+  margin-bottom: 8;
+}
+
+.stories-list {
+  orientation: horizontal;
+}
+
+.story-card {
+  margin-right: 6;
+  border-radius: 12;
+  overflow: hidden;
+}
+
+.story-preview {
+  border-radius: 12;
+}
+
+.story-avatar {
+  width: 32;
+  height: 32;
+  border-radius: 16;
+  border-width: 3;
+  border-color: #1877F2;
+  margin: 8;
+}
+
+.story-name {
+  color: #FFFFFF;
+  font-size: 12;
+  font-weight: 600;
+  padding: 6;
+}
+
+/* ---------- Tarjeta de publicacion (Post Card) ---------- */
+
+.post-card {
+  background-color: #FFFFFF;
+  margin-bottom: 8;
+  padding-top: 12;
+  padding-bottom: 4;
+  border-radius: 8;
+  /* Sombra sutil identica a la elevation 1dp de Facebook Android */
+  box-shadow: 0 1 2 rgba(0, 0, 0, 0.10);
+}
+
+.post-header {
+  padding: 0 12 8 12;
+}
+
+.avatar-round {
+  border-radius: 20;
+}
+
+.post-header-text {
+  margin-left: 8;
+  vertical-align: center;
+}
+
+.post-author {
+  font-size: 15;
+  font-weight: 700;
+  color: #050505;
+}
+
+.post-meta {
+  font-size: 13;
+  color: #65676B;
+}
+
+.post-more-btn {
+  font-size: 20;
+  color: #65676B;
+  padding: 8;
+  vertical-align: center;
+}
+
+.post-text {
+  font-size: 15;
+  color: #050505;
+  padding: 0 12 8 12;
+  line-height: 20;
+}
+
+.post-media-container {
+  background-color: #E4E6EB;
+}
+
+.video-play-icon {
+  font-size: 42;
+  color: #FFFFFF;
+  opacity: 0.9;
+}
+
+.post-stats {
+  font-size: 13;
+  color: #65676B;
+  padding: 8 12;
+}
+
+.divider {
+  height: 1;
+  background-color: #CED0D4;
+  margin: 0 12;
+}
+
+.post-actions {
+  padding: 4 8;
+}
+
+.action-btn {
+  horizontal-align: center;
+  padding: 8;
+  border-radius: 6;
+}
+
+.action-icon {
+  font-size: 16;
+  margin-right: 6;
+}
+
+.action-label {
+  font-size: 14;
+  font-weight: 600;
+  color: #65676B;
+}
+
+/* Estado activo (post ya reaccionado): tinte azul de marca, sin re-crear el layout */
+.action-btn-active .action-label,
+.action-btn-active .action-icon {
+  color: #1877F2;
+}
+
+/* Efecto al presionar (micro-animacion nativa via pseudo-clase, sin JS extra) */
+.action-btn:highlighted {
+  background-color: #E4E6EB;
+  opacity: 0.7;
+}
+
+/* ---------- Skeleton / shimmer (estado de carga) ---------- */
+
+.skeleton-card {
+  box-shadow: none;
+}
+
+.skeleton-block {
+  background-color: #E4E6EB;
+  border-radius: 6;
+}
+
+.skeleton-circle {
+  border-radius: 20;
+}
+
+.skeleton-line {
+  border-radius: 4;
+}
+
+.skeleton-media {
+  border-radius: 0;
+}

@@ -1,0 +1,57 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo" class="page-root">
+  <ActionBar title="Notificaciones" class="action-bar" />
+
+  <ListView
+    items="{{ notifications }}"
+    itemTemplateSelector="templateSelector"
+    itemLoading="onItemLoading"
+    itemUnloading="onItemUnloading"
+    separatorColor="transparent"
+    class="notif-list">
+
+    <ListView.itemTemplates>
+      <template key="skeleton">
+        <!-- Estado de carga: bloques grises con shimmer (ver onItemLoading en notifications-page.ts) -->
+        <GridLayout columns="56, *" class="notif-row">
+          <StackLayout col="0" width="52" height="52" class="skeleton-block skeleton-circle" />
+          <StackLayout col="1" class="notif-text-container">
+            <StackLayout height="12" width="220" class="skeleton-block skeleton-line" />
+            <StackLayout height="10" width="60" class="skeleton-block skeleton-line" marginTop="6" />
+          </StackLayout>
+        </GridLayout>
+      </template>
+
+      <template key="standard">
+        <GridLayout columns="56, *" class="notif-row {{ isRead ? '' : 'notif-unread' }}" tap="{{ $parents['Page'].bindingContext.onNotificationTap }}">
+          <GridLayout col="0" rows="*" columns="*" width="52" height="52">
+            <Image src="{{ actorAvatarUrl }}" stretch="aspectFill" class="notif-avatar" />
+            <Label text="{{ icon }}" class="notif-badge" verticalAlignment="bottom" horizontalAlignment="right" backgroundColor="{{ iconBackgroundColor }}" />
+          </GridLayout>
+          <StackLayout col="1" class="notif-text-container">
+            <Label text="{{ message }}" class="notif-message" textWrap="true" />
+            <Label text="{{ timestamp }}" class="notif-time" />
+          </StackLayout>
+        </GridLayout>
+      </template>
+
+      <template key="friendRequest">
+        <StackLayout class="notif-row {{ isRead ? '' : 'notif-unread' }}">
+          <GridLayout columns="56, *" tap="{{ $parents['Page'].bindingContext.onNotificationTap }}">
+            <GridLayout col="0" rows="*" columns="*" width="52" height="52">
+              <Image src="{{ actorAvatarUrl }}" stretch="aspectFill" class="notif-avatar" />
+              <Label text="{{ icon }}" class="notif-badge" verticalAlignment="bottom" horizontalAlignment="right" backgroundColor="{{ iconBackgroundColor }}" />
+            </GridLayout>
+            <StackLayout col="1" class="notif-text-container">
+              <Label text="{{ message }}" class="notif-message" textWrap="true" />
+              <Label text="{{ timestamp }}" class="notif-time" />
+            </StackLayout>
+          </GridLayout>
+          <GridLayout columns="*,*" class="notif-actions">
+            <Button text="Confirmar" col="0" class="btn-confirm" tap="{{ $parents['Page'].bindingContext.onAcceptRequest }}" />
+            <Button text="Eliminar" col="1" class="btn-decline" tap="{{ $parents['Page'].bindingContext.onDeclineRequest }}" />
+          </GridLayout>
+        </StackLayout>
+      </template>
+    </ListView.itemTemplates>
+  </ListView>
+</Page>

@@ -1,0 +1,149 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo" class="page-root">
+  <ActionBar title="facebook" class="action-bar">
+    <ActionItem ios.position="right" android.position="actionBar" text="Buscar" />
+  </ActionBar>
+
+  <GridLayout rows="*">
+    <!--
+      Un unico ListView (recycler nativo) para TODO el feed.
+      row="stories" es la fila 0 con su propio template.
+      separatorColor="transparent" porque cada card ya trae su propio
+      margen/borde (evita doble linea divisoria y "flash" al reciclar).
+    -->
+    <ListView
+      items="{{ items }}"
+      itemTemplateSelector="templateSelector"
+      loadMoreItems="{{ onLoadMorePosts }}"
+      itemLoading="onItemLoading"
+      itemUnloading="onItemUnloading"
+      separatorColor="transparent"
+      class="feed-list"
+      row="0">
+
+      <ListView.itemTemplates>
+        <template key="skeleton">
+          <!-- Estado de carga: bloques grises con animacion shimmer (ver onItemLoading en feed-page.ts) -->
+          <StackLayout class="post-card skeleton-card">
+            <GridLayout columns="48, *" class="post-header">
+              <StackLayout col="0" width="40" height="40" class="skeleton-block skeleton-circle" />
+              <StackLayout col="1" class="post-header-text">
+                <StackLayout width="120" height="14" class="skeleton-block skeleton-line" />
+                <StackLayout width="80" height="12" class="skeleton-block skeleton-line" marginTop="6" />
+              </StackLayout>
+            </GridLayout>
+            <StackLayout height="12" class="skeleton-block skeleton-line" margin="6 12" />
+            <StackLayout height="12" width="180" class="skeleton-block skeleton-line" margin="6 12" />
+            <StackLayout height="160" class="skeleton-block skeleton-media" margin="8 0" />
+          </StackLayout>
+        </template>
+
+        <template key="stories">
+          <!--
+            Fila de Historias (Lista 2). Nucleo/ListView de NativeScript no
+            soporta orientacion horizontal, asi que se usa Repeater (sin
+            reciclaje de celdas, pero con dataset pequenio de ~15 items el
+            costo es despreciable) dentro de un ScrollView horizontal.
+          -->
+          <StackLayout class="stories-row-container">
+            <ScrollView orientation="horizontal" height="180">
+              <Repeater items="{{ stories }}" class="stories-list">
+                <Repeater.itemsLayout>
+                  <StackLayout orientation="horizontal" />
+                </Repeater.itemsLayout>
+                <Repeater.itemTemplate>
+                  <StackLayout class="story-card" width="112" height="172">
+                    <GridLayout rows="*" columns="*" class="story-preview">
+                      <Image src="{{ storyPreviewUrl }}" stretch="aspectFill" rowSpan="1" colSpan="1" />
+                      <Image src="{{ avatarUrl }}" stretch="aspectFill" class="story-avatar" horizontalAlignment="left" verticalAlignment="top" visibility="{{ isOwnStory ? 'collapsed' : 'visible' }}" />
+                      <Label text="{{ userName }}" class="story-name" verticalAlignment="bottom" textWrap="true" />
+                    </GridLayout>
+                  </StackLayout>
+                </Repeater.itemTemplate>
+              </Repeater>
+            </ScrollView>
+          </StackLayout>
+        </template>
+
+        <template key="text">
+          <!-- Publicacion solo-texto: sin bloque de media, minimiza altura de celda -->
+          <StackLayout class="post-card">
+            <GridLayout columns="48, *, auto" class="post-header">
+              <Image src="{{ authorAvatarUrl }}" width="40" height="40" class="avatar-round" col="0" />
+              <StackLayout col="1" class="post-header-text">
+                <Label text="{{ authorName }}" class="post-author" />
+                <StackLayout orientation="horizontal">
+                  <Label text="{{ timestamp }}" class="post-meta" />
+                  <Label text="{{ ' · ' + privacyIcon }}" class="post-meta" />
+                </StackLayout>
+              </StackLayout>
+              <Label text="&#8942;" col="2" class="post-more-btn" />
+            </GridLayout>
+
+            <Label text="{{ text }}" class="post-text" textWrap="true" />
+
+            <Label text="{{ '👍 ' + totalReactions + '   ' + totalComments + ' comentarios   ' + totalShares + ' veces compartido' }}" class="post-stats" />
+            <StackLayout class="divider" />
+
+            <GridLayout columns="*,*,*" class="post-actions">
+              <StackLayout col="0" orientation="horizontal" class="action-btn {{ isLikedByUser ? 'action-btn-active' : '' }}" tap="{{ $parents['Page'].bindingContext.onToggleLike }}">
+                <Label text="👍" class="action-icon" />
+                <Label text="Me gusta" class="action-label" />
+              </StackLayout>
+              <StackLayout col="1" orientation="horizontal" class="action-btn">
+                <Label text="💬" class="action-icon" />
+                <Label text="Comentar" class="action-label" />
+              </StackLayout>
+              <StackLayout col="2" orientation="horizontal" class="action-btn">
+                <Label text="↗" class="action-icon" />
+                <Label text="Compartir" class="action-label" />
+              </StackLayout>
+            </GridLayout>
+          </StackLayout>
+        </template>
+
+        <template key="media">
+          <!-- Publicacion con imagen/video simulado -->
+          <StackLayout class="post-card">
+            <GridLayout columns="48, *, auto" class="post-header">
+              <Image src="{{ authorAvatarUrl }}" width="40" height="40" class="avatar-round" col="0" />
+              <StackLayout col="1" class="post-header-text">
+                <Label text="{{ authorName }}" class="post-author" />
+                <StackLayout orientation="horizontal">
+                  <Label text="{{ timestamp }}" class="post-meta" />
+                  <Label text="{{ ' · ' + privacyIcon }}" class="post-meta" />
+                </StackLayout>
+              </StackLayout>
+              <Label text="&#8942;" col="2" class="post-more-btn" />
+            </GridLayout>
+
+            <Label text="{{ text }}" class="post-text" textWrap="true" />
+
+            <GridLayout rows="220" columns="*" class="post-media-container">
+              <!-- decodeWidth/decodeHeight evitan decodificar bitmaps a resolucion completa: clave para memoria y 60 FPS -->
+              <Image src="{{ mediaUrl }}" stretch="aspectFill" decodeWidth="800" decodeHeight="440" />
+              <Label text="▶" class="video-play-icon" visibility="{{ mediaType === 'video' ? 'visible' : 'collapsed' }}" horizontalAlignment="center" verticalAlignment="center" />
+            </GridLayout>
+
+            <Label text="{{ '👍 ' + totalReactions + '   ' + totalComments + ' comentarios   ' + totalShares + ' veces compartido' }}" class="post-stats" />
+            <StackLayout class="divider" />
+
+            <GridLayout columns="*,*,*" class="post-actions">
+              <StackLayout col="0" orientation="horizontal" class="action-btn {{ isLikedByUser ? 'action-btn-active' : '' }}" tap="{{ $parents['Page'].bindingContext.onToggleLike }}">
+                <Label text="👍" class="action-icon" />
+                <Label text="Me gusta" class="action-label" />
+              </StackLayout>
+              <StackLayout col="1" orientation="horizontal" class="action-btn">
+                <Label text="💬" class="action-icon" />
+                <Label text="Comentar" class="action-label" />
+              </StackLayout>
+              <StackLayout col="2" orientation="horizontal" class="action-btn">
+                <Label text="↗" class="action-icon" />
+                <Label text="Compartir" class="action-label" />
+              </StackLayout>
+            </GridLayout>
+          </StackLayout>
+        </template>
+      </ListView.itemTemplates>
+    </ListView>
+  </GridLayout>
+</Page>

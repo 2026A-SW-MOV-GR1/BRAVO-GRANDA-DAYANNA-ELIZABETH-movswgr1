@@ -1,0 +1,101 @@
+/* Entregable 2.3 — Estilizacion de alta fidelidad de Notificaciones (Lista 3) */
+
+.notif-list {
+  background-color: #FFFFFF;
+}
+
+.notif-row {
+  padding: 10 12;
+}
+
+/* No leida: fondo azul muy claro, igual que el estado "unread" real de Facebook */
+.notif-unread {
+  background-color: #E7F3FF;
+}
+
+.notif-avatar {
+  border-radius: 26;
+  width: 52;
+  height: 52;
+}
+
+.notif-badge {
+  width: 22;
+  height: 22;
+  border-radius: 11;
+  font-size: 12;
+  color: #FFFFFF;
+  text-align: center;
+  vertical-align: middle;
+  border-width: 2;
+  border-color: #FFFFFF;
+}
+
+.notif-text-container {
+  margin-left: 10;
+  vertical-align: center;
+}
+
+.notif-message {
+  font-size: 14.5;
+  color: #050505;
+  line-height: 19;
+}
+
+.notif-time {
+  font-size: 12.5;
+  color: #1877F2;
+  font-weight: 600;
+  margin-top: 4;
+}
+
+.notif-actions {
+  margin-left: 62;
+  margin-top: 8;
+}
+
+.btn-confirm {
+  background-color: #1877F2;
+  color: #FFFFFF;
+  font-weight: 700;
+  border-radius: 6;
+  margin-right: 4;
+  font-size: 14;
+}
+
+.btn-decline {
+  background-color: #E4E6EB;
+  color: #050505;
+  font-weight: 700;
+  border-radius: 6;
+  margin-left: 4;
+  font-size: 14;
+}
+
+/* Efecto al presionar (pseudo-clase nativa, sin JS extra) */
+.btn-confirm:highlighted {
+  background-color: #2374E1;
+}
+
+.btn-decline:highlighted {
+  background-color: #CED0D4;
+}
+
+.notif-row:highlighted {
+  background-color: #F0F2F5;
+}
+
+/* ---------- Skeleton / shimmer (estado de carga) ---------- */
+
+.skeleton-block {
+  background-color: #E4E6EB;
+  border-radius: 6;
+}
+
+.skeleton-circle {
+  border-radius: 26;
+}
+
+.skeleton-line {
+  border-radius: 4;
+}

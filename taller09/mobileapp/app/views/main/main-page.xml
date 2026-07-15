@@ -1,0 +1,18 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" actionBarHidden="true" class="page-root">
+  <!--
+    TabView es el componente nativo disponible en esta version de
+    @nativescript/core (UITabBarController en iOS / equivalente a un
+    BottomNavigationView en Android via androidTabsPosition="bottom").
+    Entregable 3: cada pestania combina icono + etiqueta de texto SIEMPRE
+    visibles (nunca solo el glyph), para resolver la ambiguedad que la app
+    real de Facebook presenta en su barra inferior (ver README, Fase C).
+  -->
+  <TabView selectedIndex="0" androidTabsPosition="bottom" class="bottom-nav">
+    <TabViewItem title="🏠 Inicio">
+      <Frame defaultPage="views/feed/feed-page"></Frame>
+    </TabViewItem>
+    <TabViewItem title="🔔 Notificaciones">
+      <Frame defaultPage="views/notifications/notifications-page"></Frame>
+    </TabViewItem>
+  </TabView>
+</Page>
