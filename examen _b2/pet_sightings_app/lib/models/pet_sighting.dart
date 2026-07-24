@@ -38,6 +38,11 @@ class PetSighting {
   final String? photoPath;
   final SightingStatus status;
 
+  /// Id del caso de mascota perdida (recibido desde App 1 vía Intent, ver
+  /// CONTRATO_INTENTS.md) al que pertenece este avistamiento. Null cuando el
+  /// avistamiento se reporta de forma independiente, sin caso activo.
+  final String? caseId;
+
   PetSighting({
     required this.id,
     required this.petName,
@@ -49,6 +54,7 @@ class PetSighting {
     required this.sightedAt,
     this.photoPath,
     this.status = SightingStatus.visto,
+    this.caseId,
   });
 
   PetSighting copyWith({SightingStatus? status}) {
@@ -77,6 +83,7 @@ class PetSighting {
         'sightedAt': sightedAt.toIso8601String(),
         'photoPath': photoPath,
         'status': status.name,
+        'caseId': caseId,
       };
 
   factory PetSighting.fromJson(Map<String, dynamic> json) => PetSighting(
@@ -96,5 +103,6 @@ class PetSighting {
           (e) => e.name == json['status'],
           orElse: () => SightingStatus.visto,
         ),
+        caseId: json['caseId'] as String?,
       );
 }

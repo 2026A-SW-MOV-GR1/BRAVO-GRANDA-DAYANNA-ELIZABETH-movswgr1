@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import '../models/lost_pet_case.dart';
 import '../models/pet_sighting.dart';
 import '../providers/sighting_provider.dart';
+import '../services/intent_service.dart';
 import '../services/location_service.dart';
 import '../widgets/custom_marker.dart';
 import '../widgets/sighting_detail_sheet.dart';
@@ -21,6 +25,8 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   final MapController _mapController = MapController();
   final LocationService _locationService = LocationService();
+  final IntentService _intentService = IntentService();
+  StreamSubscription<LostPetCase>? _newCaseSubscription;
 
   bool _pickingLocation = false;
   LatLng? _pendingPoint;
@@ -29,7 +35,32 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _centerOnMyLocation(silent: true));
+
+    // Si App 1 ya envió un caso al arrancar (ver main.dart), centrar el
+    // mapa ahí en vez de en la ubicación del usuario.
+    final activeCase = context.read<SightingProvider>().activeCase;
+    if (activeCase != null) {
+      _center = LatLng(activeCase.lastSeenLat, activeCase.lastSeenLng);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _centerOnMyLocation(silent: true));
+    }
+
+    // Casos que lleguen mientras la app ya está abierta (onNewIntent, ver
+    // CONTRATO_INTENTS.md).
+    _newCaseSubscription = _intentService.onNewCase().listen(_onNewCaseReceived);
+  }
+
+  @override
+  void dispose() {
+    _newCaseSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _onNewCaseReceived(LostPetCase newCase) {
+    context.read<SightingProvider>().setActiveCase(newCase);
+    final point = LatLng(newCase.lastSeenLat, newCase.lastSeenLng);
+    setState(() => _center = point);
+    _mapController.move(point, 15);
   }
 
   Future<void> _centerOnMyLocation({bool silent = false}) async {
@@ -72,12 +103,15 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _confirmLocation() async {
     if (_pendingPoint == null) return;
     final point = _pendingPoint!;
+    final activeCase = context.read<SightingProvider>().activeCase;
     setState(() {
       _pickingLocation = false;
       _pendingPoint = null;
     });
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ReportFormScreen(location: point)),
+      MaterialPageRoute(
+        builder: (_) => ReportFormScreen(location: point, activeCase: activeCase),
+      ),
     );
   }
 
@@ -136,8 +170,25 @@ class _MapScreenState extends State<MapScreen> {
               MarkerLayer(markers: markers),
             ],
           ),
-          _buildFilterBar(context, provider),
-          if (_pickingLocation) _buildPickingBanner(context),
+          Positioned(
+            top: 12,
+            left: 12,
+            right: 12,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (provider.activeCase != null) ...[
+                  _buildActiveCaseBanner(context, provider.activeCase!),
+                  const SizedBox(height: 8),
+                ],
+                _buildFilterRow(context, provider),
+                if (_pickingLocation) ...[
+                  const SizedBox(height: 8),
+                  _buildPickingBanner(context),
+                ],
+              ],
+            ),
+          ),
           Positioned(
             right: 16,
             bottom: 100,
@@ -163,65 +214,83 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildPickingBanner(BuildContext context) {
-    return Positioned(
-      top: 12,
-      left: 12,
-      right: 12,
-      child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(12),
-        color: Theme.of(context).colorScheme.primaryContainer,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              const Icon(Icons.touch_app),
-              const SizedBox(width: 8),
-              const Expanded(child: Text('Toca el mapa para elegir la ubicación')),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: _cancelPicking,
-                tooltip: 'Cancelar',
+  Widget _buildActiveCaseBanner(BuildContext context, LostPetCase activeCase) {
+    return Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(12),
+      color: Theme.of(context).colorScheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          children: [
+            const Icon(Icons.pets),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Buscando a: ${activeCase.petName} · reportado por App 1',
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-            ],
-          ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              tooltip: 'Cerrar caso',
+              onPressed: () => context.read<SightingProvider>().clearActiveCase(),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildFilterBar(BuildContext context, SightingProvider provider) {
-    return Positioned(
-      top: _pickingLocation ? 64 : 12,
-      left: 12,
-      right: 12,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+  Widget _buildPickingBanner(BuildContext context) {
+    return Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(12),
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
-            _filterChip(
-              label: 'Todos',
-              selected: provider.typeFilter == null,
-              onTap: () => provider.setTypeFilter(null),
-            ),
-            for (final type in PetType.values)
-              _filterChip(
-                label: type.label,
-                selected: provider.typeFilter == type,
-                onTap: () => provider.setTypeFilter(type),
-              ),
+            const Icon(Icons.touch_app),
             const SizedBox(width: 8),
-            _filterChip(
-              label: 'Solo vistos',
-              selected: provider.statusFilter == SightingStatus.visto,
-              onTap: () => provider.setStatusFilter(
-                provider.statusFilter == SightingStatus.visto ? null : SightingStatus.visto,
-              ),
-              color: const Color(0xFFE65100),
+            const Expanded(child: Text('Toca el mapa para elegir la ubicación')),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: _cancelPicking,
+              tooltip: 'Cancelar',
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFilterRow(BuildContext context, SightingProvider provider) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          _filterChip(
+            label: 'Todos',
+            selected: provider.typeFilter == null,
+            onTap: () => provider.setTypeFilter(null),
+          ),
+          for (final type in PetType.values)
+            _filterChip(
+              label: type.label,
+              selected: provider.typeFilter == type,
+              onTap: () => provider.setTypeFilter(type),
+            ),
+          const SizedBox(width: 8),
+          _filterChip(
+            label: 'Solo vistos',
+            selected: provider.statusFilter == SightingStatus.visto,
+            onTap: () => provider.setStatusFilter(
+              provider.statusFilter == SightingStatus.visto ? null : SightingStatus.visto,
+            ),
+            color: const Color(0xFFE65100),
+          ),
+        ],
       ),
     );
   }

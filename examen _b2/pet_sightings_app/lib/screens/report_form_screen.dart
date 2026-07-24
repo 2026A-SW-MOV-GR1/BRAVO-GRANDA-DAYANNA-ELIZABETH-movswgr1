@@ -4,13 +4,20 @@ import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import '../models/lost_pet_case.dart';
 import '../models/pet_sighting.dart';
 import '../providers/sighting_provider.dart';
 
 class ReportFormScreen extends StatefulWidget {
   final LatLng location;
 
-  const ReportFormScreen({super.key, required this.location});
+  /// Caso activo recibido de App 1 (ver CONTRATO_INTENTS.md), si el
+  /// avistamiento que se va a reportar corresponde a esa mascota. Cuando no
+  /// es null, se prellenan nombre/tipo y el avistamiento queda enlazado al
+  /// caso mediante `caseId`.
+  final LostPetCase? activeCase;
+
+  const ReportFormScreen({super.key, required this.location, this.activeCase});
 
   @override
   State<ReportFormScreen> createState() => _ReportFormScreenState();
@@ -18,11 +25,11 @@ class ReportFormScreen extends StatefulWidget {
 
 class _ReportFormScreenState extends State<ReportFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameCtrl = TextEditingController();
+  late final _nameCtrl = TextEditingController(text: widget.activeCase?.petName);
   final _descCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
+  late final _phoneCtrl = TextEditingController(text: widget.activeCase?.contactPhone);
 
-  PetType _petType = PetType.perro;
+  late PetType _petType = widget.activeCase?.petType ?? PetType.perro;
   DateTime _sightedAt = DateTime.now();
   XFile? _photo;
   bool _saving = false;
@@ -72,6 +79,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
             longitude: widget.location.longitude,
             sightedAt: _sightedAt,
             photoPath: _photo?.path,
+            caseId: widget.activeCase?.petId,
           );
     } catch (_) {
       if (mounted) {
@@ -99,6 +107,25 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (widget.activeCase != null) ...[
+              Card(
+                color: Theme.of(context).colorScheme.errorContainer,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.pets),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text('Este avistamiento se vinculará al caso de '
+                            '${widget.activeCase!.petName} reportado en App 1'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             Card(
               color: Theme.of(context).colorScheme.secondaryContainer,
               child: Padding(

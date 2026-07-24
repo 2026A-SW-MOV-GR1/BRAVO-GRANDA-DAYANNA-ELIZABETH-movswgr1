@@ -29,6 +29,13 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Contrato de Intents del flujo "Mascota Perdida" (ver
+                 CONTRATO_INTENTS.md, Paso 1 -> 2): recibe el reporte de
+                 mascota perdida enviado por App 1. -->
+            <intent-filter>
+                <action android:name="com.examenb2.petflow.action.LOST_PET_REPORTED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
@@ -45,6 +52,13 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Necesario en Android 11+ para poder resolver/lanzar el Intent
+             implícito hacia App 3 (Refugios) del contrato de Intents,
+             ver CONTRATO_INTENTS.md Paso 2 -> 3. -->
+        <intent>
+            <action android:name="com.examenb2.petflow.action.SIGHTING_FOLLOWUP"/>
+            <category android:name="android.intent.category.DEFAULT"/>
         </intent>
     </queries>
 </manifest>

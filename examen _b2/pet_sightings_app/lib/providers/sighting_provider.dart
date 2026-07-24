@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../models/lost_pet_case.dart';
 import '../models/pet_sighting.dart';
 import '../services/sighting_repository.dart';
 
@@ -12,12 +13,28 @@ class SightingProvider extends ChangeNotifier {
   PetType? _typeFilter;
   SightingStatus? _statusFilter;
 
+  /// Caso de mascota perdida activo, recibido desde App 1 vía Intent (ver
+  /// CONTRATO_INTENTS.md). Null cuando la app se usa de forma independiente.
+  LostPetCase? _activeCase;
+
   SightingProvider(this._repository);
 
   List<PetSighting> get all => _sightings;
 
   PetType? get typeFilter => _typeFilter;
   SightingStatus? get statusFilter => _statusFilter;
+
+  LostPetCase? get activeCase => _activeCase;
+
+  void setActiveCase(LostPetCase lostPetCase) {
+    _activeCase = lostPetCase;
+    notifyListeners();
+  }
+
+  void clearActiveCase() {
+    _activeCase = null;
+    notifyListeners();
+  }
 
   List<PetSighting> get filtered => _sightings.where((s) {
         final typeOk = _typeFilter == null || s.petType == _typeFilter;
@@ -39,6 +56,7 @@ class SightingProvider extends ChangeNotifier {
     required double longitude,
     required DateTime sightedAt,
     String? photoPath,
+    String? caseId,
   }) async {
     final sighting = PetSighting(
       id: _uuid.v4(),
@@ -50,6 +68,7 @@ class SightingProvider extends ChangeNotifier {
       longitude: longitude,
       sightedAt: sightedAt,
       photoPath: photoPath,
+      caseId: caseId,
     );
     await _repository.save(sighting);
     await load();

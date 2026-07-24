@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'providers/sighting_provider.dart';
 import 'screens/map_screen.dart';
+import 'services/intent_service.dart';
 import 'services/sighting_repository.dart';
 
 Future<void> main() async {
@@ -12,6 +13,13 @@ Future<void> main() async {
 
   final provider = SightingProvider(repository);
   await provider.load();
+
+  // Si App 1 lanzó esta app mediante el Intent del contrato (ver
+  // CONTRATO_INTENTS.md), el caso llega aquí antes del primer frame.
+  final initialCase = await IntentService().getInitialCase();
+  if (initialCase != null) {
+    provider.setActiveCase(initialCase);
+  }
 
   runApp(PetSightingsApp(provider: provider));
 }

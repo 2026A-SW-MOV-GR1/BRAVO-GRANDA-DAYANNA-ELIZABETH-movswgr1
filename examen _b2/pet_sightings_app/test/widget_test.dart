@@ -14,9 +14,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import 'package:pet_sightings_app/models/lost_pet_case.dart';
 import 'package:pet_sightings_app/models/pet_sighting.dart';
 import 'package:pet_sightings_app/providers/sighting_provider.dart';
 import 'package:pet_sightings_app/screens/report_form_screen.dart';
+import 'package:pet_sightings_app/services/intent_contract.dart';
 import 'package:pet_sightings_app/services/sighting_repository.dart';
 
 int _testBoxCounter = 0;
@@ -53,6 +55,38 @@ void main() {
     expect(restored.longitude, original.longitude);
     expect(restored.sightedAt, original.sightedAt);
     expect(restored.status, original.status);
+  });
+
+  test('LostPetCase.fromIntentExtras parsea los extras del contrato App1->App2', () {
+    final extras = <Object?, Object?>{
+      IntentContract.extraPetId: 'demo-123',
+      IntentContract.extraPetName: 'Firulais',
+      IntentContract.extraPetType: 'perro',
+      IntentContract.extraDescription: 'Labrador color café, collar rojo',
+      IntentContract.extraLastSeenLat: -0.1807,
+      IntentContract.extraLastSeenLng: -78.4678,
+      IntentContract.extraContactPhone: '0999999999',
+      IntentContract.extraReportedAt: '2026-07-23T10:00:00.000',
+    };
+
+    final lostPetCase = LostPetCase.fromIntentExtras(extras);
+
+    expect(lostPetCase, isNotNull);
+    expect(lostPetCase!.petId, 'demo-123');
+    expect(lostPetCase.petName, 'Firulais');
+    expect(lostPetCase.petType, PetType.perro);
+    expect(lostPetCase.lastSeenLat, -0.1807);
+    expect(lostPetCase.lastSeenLng, -78.4678);
+  });
+
+  test('LostPetCase.fromIntentExtras devuelve null si faltan campos obligatorios', () {
+    final extras = <Object?, Object?>{
+      IntentContract.extraPetId: 'demo-123',
+      // Falta pet_name y el resto de campos obligatorios.
+    };
+
+    expect(LostPetCase.fromIntentExtras(extras), isNull);
+    expect(LostPetCase.fromIntentExtras(null), isNull);
   });
 
   test('SightingProvider guarda, filtra y elimina avistamientos', () async {
