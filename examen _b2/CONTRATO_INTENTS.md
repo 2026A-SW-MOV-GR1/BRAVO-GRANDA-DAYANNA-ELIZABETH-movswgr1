@@ -6,6 +6,34 @@ cada una (Flutter o Kotlin Multiplatform). Cualquier cambio a este contrato
 debe acordarse entre todo el equipo, porque rompe la cadena si una sola app
 se desincroniza.
 
+## Alcance de este documento frente a la rúbrica del examen
+
+El examen tiene dos componentes que se califican distinto (ver enunciado
+"Examen 02"):
+
+- **Examen individual** (mapa, marcadores, coordenadas, usabilidad, lógica
+  del módulo): se evalúa sobre **el APK de cada quien**, no sobre este
+  documento. Este archivo no sustituye eso — cada estudiante debe llevar su
+  propia app funcionando.
+- **Proyecto grupal** (cohesión del tema, interoperabilidad, contratos de
+  datos): es exactamente lo que cubre **este documento** de punta a punta.
+
+Correspondencia con el caso de estudio "14. Gestión de Mascotas Perdidas":
+
+| App | Módulo | Mapa según el enunciado | Cubierto en este contrato |
+|---|---|---|---|
+| 1 | Reportar mascota perdida | Última ubicación | `last_seen_lat/lng` (Paso 1→2) |
+| 2 | Avistamientos | Reportes ciudadanos | mapa de `PetSighting` en `pet_sightings_app` |
+| 3 | Refugios | Refugios cercanos | disparado por `sighting_lat/lng` (Paso 2→3) |
+| 4 | Reencuentro | Lugar donde fue encontrada | `shelter_lat/lng` (Paso 3→4) |
+
+⚠️ Punto a confirmar con los compañeros de App 3/4: el contrato asume que
+"lugar donde fue encontrada" (mapa de App 4) **es la ubicación del refugio**
+elegido en App 3. Si en su historia el reencuentro ocurre en un punto
+distinto (no el refugio), hay que agregar un extra adicional
+`reencuentro_lat`/`reencuentro_lng` al Paso 3→4 — avísenme si es así y lo
+ajusto.
+
 ## Por qué Intents implícitos (no explícitos)
 
 Se usa **acción implícita + categoría**, en vez de apuntar a un
